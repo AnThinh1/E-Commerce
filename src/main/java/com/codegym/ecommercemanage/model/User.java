@@ -31,6 +31,8 @@ public class User {
 
     private String email;
 
+    private String status;
+
     private LocalDateTime createdAt;
 
     // CẤU HÌNH QUAN HỆ N-N
