@@ -4,6 +4,7 @@ import com.codegym.ecommercemanage.dto.request.LoginRequest;
 import com.codegym.ecommercemanage.dto.request.RegisterRequest;
 import com.codegym.ecommercemanage.dto.response.LoginResponse;
 import com.codegym.ecommercemanage.dto.response.UserResponse;
+import com.codegym.ecommercemanage.exceptions.DuplicateUserNameException;
 import com.codegym.ecommercemanage.model.Role;
 import com.codegym.ecommercemanage.model.User;
 import com.codegym.ecommercemanage.repository.RoleRepository;
@@ -21,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class LoginService {
 
     @Autowired
     private UserRepository repo;
@@ -38,7 +39,16 @@ public class UserService {
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     // SỬA: Nhận RegisterRequest -> Trả UserResponse
-    public UserResponse register(RegisterRequest request) {
+    public UserResponse register(RegisterRequest request) throws DuplicateUserNameException {
+        if (repo.existsByUsername(request.getUsername())) {
+            throw new DuplicateUserNameException("Tên đăng nhập '" + request.getUsername() + "' đã tồn tại!");
+        }
+
+        // (Khuyên dùng) Nên check cả email để tránh 1 email đăng ký nhiều acc
+        if (repo.existsByEmail(request.getEmail())) {
+            throw new DuplicateUserNameException("Email này đã được sử dụng!");
+        }
+
         // 1. Chuyển đổi từ DTO (RegisterRequest) sang Entity (User)
         User user = new User();
         user.setUsername(request.getUsername());
