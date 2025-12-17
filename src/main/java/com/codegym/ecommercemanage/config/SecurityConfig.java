@@ -37,8 +37,8 @@ public class SecurityConfig {
                 .cors(cors -> {}) // Spring sẽ dùng WebMvcConfigurer.corsConfigurer()
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/register", "/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/students/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/students/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/product/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/staff/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
