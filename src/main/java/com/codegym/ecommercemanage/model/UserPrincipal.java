@@ -33,7 +33,11 @@ public class UserPrincipal implements UserDetails {
     public static UserPrincipal build(User user) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         for (Role a: user.getRoles()){
-            authorities.add(new SimpleGrantedAuthority(a.getName()));
+            authorities.add(new SimpleGrantedAuthority(
+                    a.getName().startsWith("ROLE_")
+                            ? a.getName()
+                            : "ROLE_" + a.getName()
+            ));
         }
 
         return new UserPrincipal(
