@@ -37,7 +37,7 @@ public class User {
 
     // CẤU HÌNH QUAN HỆ N-N
     // FetchType.EAGER: Để khi query User thì lấy luôn Role (cần thiết cho Spring Security login)
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles", // Tên bảng trung gian sẽ được tạo trong DB
             joinColumns = @JoinColumn(name = "user_id"), // Khóa ngoại trỏ về User

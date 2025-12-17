@@ -25,23 +25,29 @@ repositories {
 }
 
 dependencies {
+    // 1. Web & API
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-validation' // Validate input
+
+    // 2. Database (JPA + MySQL)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    // Tests
+    // 3. Security & JWT (Quan trọng nhất với bạn lúc này)
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // 4. Tiện ích
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' // Nếu có làm giao diện Server-side
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools' // Auto restart khi sửa code
+
+    // 5. Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 }
