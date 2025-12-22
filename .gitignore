@@ -36,3 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 react_demo/
+src/main/resources/application.properties
