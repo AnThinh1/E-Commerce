@@ -1,0 +1,19 @@
+package com.codegym.ecommercemanage.dto.request;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class UpdateProfileRequest {
+
+    @NotBlank(message = "Full name is required")
+    private String fullName;
+
+    private String phone;
+
+    private String address;
+
+    @Email(message = "Invalid email")
+    private String email;
+}

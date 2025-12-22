@@ -17,14 +17,15 @@ public class ProductService {
     private CategoryRepository categoryRepository;
 
     public List<Product> findAll() {
-        return productRepository.getProducts();
+        return productRepository.findAll();
     }
 
-    public Product findById(int id) {
-        return productRepository.getProduct(id);
+    public Product findById(Long id) {
+        return productRepository.findById(id) // ✅
+                .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    public void delete(int id) {
+    public void delete(Long id) {
         productRepository.deleteById(id);
     }
 
