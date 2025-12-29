@@ -17,11 +17,11 @@ public class ProductService {
     private CategoryRepository categoryRepository;
 
     public List<Product> findAll() {
-        return productRepository.getProducts();
+        return productRepository.findAll();
     }
 
     public Product findById(int id) {
-        return productRepository.getProduct(id);
+        return productRepository.findById(id).orElse(null);
     }
 
     public void delete(int id) {
