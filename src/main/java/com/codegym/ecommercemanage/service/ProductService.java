@@ -20,9 +20,8 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product findById(Long id) {
-        return productRepository.findById(id) // ✅
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+    public Product findById(int id) {
+        return productRepository.findById(id).orElse(null);
     }
 
     public void delete(int id) {
