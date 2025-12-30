@@ -25,7 +25,7 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    public void delete(Long id) {
+    public void delete(int id) {
         productRepository.deleteById(id);
     }
 
