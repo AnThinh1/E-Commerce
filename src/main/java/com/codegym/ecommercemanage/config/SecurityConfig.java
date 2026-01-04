@@ -45,10 +45,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 🔥 CỰC QUAN TRỌNG – CHO OPTIONS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
+                        // 👇 THÊM DÒNG NÀY ĐỂ MỞ KHÓA KHO ẢNH
+                        .requestMatchers("/uploads/**").permitAll()
                         // PUBLIC
                         .requestMatchers("/login", "/register").permitAll()
-
+                        .requestMatchers("/error").permitAll()
                         // ADMIN CRUD
                         .requestMatchers(HttpMethod.GET,    "/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
                         .requestMatchers(HttpMethod.POST,   "/api/admin/**").hasAnyAuthority("ROLE_ADMIN","ROLE_STAFF")

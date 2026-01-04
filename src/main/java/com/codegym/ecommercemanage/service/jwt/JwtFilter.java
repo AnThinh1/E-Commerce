@@ -28,33 +28,54 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws IOException, ServletException {
 
-        // 🚑 BỎ QUA LOGIN / REGISTER / OPTIONS
+        // 🚑 1. BỎ QUA CÁC URL KHÔNG CẦN CHECK
         String uri = req.getRequestURI();
-
-        if (uri.startsWith("/login")
-                || uri.startsWith("/register")
-                || "OPTIONS".equalsIgnoreCase(req.getMethod())) {
+        if (uri.startsWith("/login") || uri.startsWith("/register") || "OPTIONS".equalsIgnoreCase(req.getMethod())) {
             chain.doFilter(req, res);
             return;
         }
 
         String header = req.getHeader("Authorization");
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            String username = jwtService.extractUserName(token);
+        // 🔍 DEBUG: In ra xem Frontend gửi cái gì lên
+        // System.out.println("🔍 [Filter] Header nhận được: " + header);
 
-            User user = userRepo.findByUsername(username);
-            if (user != null) {
-                UserPrincipal principal = UserPrincipal.build(user);
+        try {
+            if (header != null && header.startsWith("Bearer ")) {
+                String token = header.substring(7);
 
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(
-                                principal, null, principal.getAuthorities()
-                        );
+                // Bước 1: Giải mã Token
+                String username = jwtService.extractUserName(token);
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // Bước 2: Tìm User trong DB
+                    User user = userRepo.findByUsername(username);
+
+                    if (user != null) {
+                        // 🔍 DEBUG QUAN TRỌNG: Kiểm tra xem Role có load được không
+                        // Nếu dòng này in ra lỗi -> Do chưa có FetchType.EAGER
+                        // System.out.println("🔍 [Filter] Tìm thấy User: " + user.getUsername() + " | Roles: " + user.getRoles());
+
+                        UserPrincipal principal = UserPrincipal.build(user);
+
+                        // 🔍 DEBUG QUAN TRỌNG: Kiểm tra quyền cuối cùng nạp vào Security
+                        System.out.println("✅ [Filter] Cấp quyền cho User: " + principal.getAuthorities());
+
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(
+                                        principal, null, principal.getAuthorities()
+                                );
+
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    } else {
+                        System.err.println("❌ [Filter] Token hợp lệ nhưng không tìm thấy User trong DB: " + username);
+                    }
+                }
             }
+        } catch (Exception e) {
+            // 🔥 BẮT LỖI TẠI ĐÂY: Nếu token sai hoặc lỗi code, nó sẽ hiện ra thay vì âm thầm trả về 403
+            System.err.println("❌ [Filter] LỖI XÁC THỰC: " + e.getMessage());
+            e.printStackTrace();
         }
 
         chain.doFilter(req, res);

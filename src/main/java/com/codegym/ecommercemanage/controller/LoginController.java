@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(value = "http://localhost:5173")
 public class LoginController {
 
     @Autowired
@@ -37,9 +36,20 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    // SỬA: Nhận LoginRequest, trả về ResponseEntity<LoginResponse>
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
-        LoginResponse response = service.verify(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            System.out.println("Đang nhận request login: " + request.getUsername());
+
+            // Gọi service xác thực
+            LoginResponse response = service.verify(request);
+
+            System.out.println("Login thành công!");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            // In lỗi ra màn hình Console của IntelliJ để xem
+            e.printStackTrace();
+            return ResponseEntity.status(401).body("Lỗi đăng nhập: " + e.getMessage());
+        }
     }
 }

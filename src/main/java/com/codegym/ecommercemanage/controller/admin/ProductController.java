@@ -40,11 +40,48 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product product){
-        product.setId(id);
-        Product updatedProduct = productService.update(product);
-        return ResponseEntity.ok(updatedProduct);
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProduct(
+            @PathVariable int id,
+            @RequestPart("product") Product productDetails,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+        try {
+            // 1. Tìm sản phẩm cũ
+            Product existingProduct = productService.findById(id);
+            if (existingProduct == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // 2. Cập nhật thông tin (Giữ nguyên ID, chỉ sửa nội dung)
+            existingProduct.setName(productDetails.getName());
+            existingProduct.setPrice(productDetails.getPrice());
+            existingProduct.setQuantity(productDetails.getQuantity());
+            existingProduct.setDescription(productDetails.getDescription());
+            existingProduct.setStatus(productDetails.getStatus());
+            existingProduct.setCategory(productDetails.getCategory());
+
+            // 3. Xử lý ảnh: Chỉ thay đổi nếu người dùng có chọn ảnh mới
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String fileName = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename();
+
+                // Lưu file vào thư mục uploads
+                Path uploadPath = Paths.get("uploads");
+                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+                Files.copy(imageFile.getInputStream(), uploadPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+
+                // Gán tên ảnh mới vào DB
+                existingProduct.setImage(fileName);
+            }
+            // Nếu không chọn ảnh mới -> Giữ nguyên ảnh cũ (không làm gì cả)
+
+            // 4. Lưu lại
+            Product updatedProduct = productService.save(existingProduct);
+            return ResponseEntity.ok(updatedProduct);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi Update: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

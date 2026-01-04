@@ -40,6 +40,7 @@ public class AdminUserService {
                         .fullName(user.getFullName())
                         .phone(user.getPhone())
                         .address(user.getAddress())
+                        .roles(user.getRoles())
                         .build()
                 )
                 .toList();
@@ -58,6 +59,7 @@ public class AdminUserService {
                 .fullName(user.getFullName())
                 .phone(user.getPhone())
                 .address(user.getAddress())
+                .roles(user.getRoles())
                 .build();
     }
 
@@ -96,6 +98,7 @@ public class AdminUserService {
                 .fullName(saved.getFullName())
                 .phone(saved.getPhone())
                 .address(saved.getAddress())
+                .roles(saved.getRoles())
                 .build();
     }
 
@@ -139,6 +142,7 @@ public class AdminUserService {
                 .fullName(saved.getFullName())
                 .phone(saved.getPhone())
                 .address(saved.getAddress())
+                .roles(saved.getRoles())
                 .build();
     }
 
