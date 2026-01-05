@@ -1,6 +1,7 @@
 package com.codegym.ecommercemanage.controller.admin;
 
 import com.codegym.ecommercemanage.dto.request.StockRequest;
+import com.codegym.ecommercemanage.dto.response.StockReportResponse;
 import com.codegym.ecommercemanage.model.StockHistory;
 import com.codegym.ecommercemanage.service.StockService;
 import jakarta.validation.Valid;
@@ -50,4 +51,14 @@ public class StockController {
                 stockService.getHistoryByProduct(productId)
         );
     }
+    // ================= REPORT =================
+    @GetMapping("/report/{productId}")
+    public ResponseEntity<StockReportResponse> report(
+            @PathVariable Integer productId
+    ) {
+        return ResponseEntity.ok(
+                stockService.getStockReport(productId)
+        );
+    }
+
 }

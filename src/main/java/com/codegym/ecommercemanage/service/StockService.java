@@ -1,13 +1,16 @@
 package com.codegym.ecommercemanage.service;
 
 import com.codegym.ecommercemanage.dto.request.StockRequest;
+import com.codegym.ecommercemanage.dto.response.StockReportResponse;
 import com.codegym.ecommercemanage.model.Product;
 import com.codegym.ecommercemanage.model.StockHistory;
 import com.codegym.ecommercemanage.repository.ProductRepository;
 import com.codegym.ecommercemanage.repository.StockHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,6 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class StockService {
+
 
     private final ProductRepository productRepo;
     private final StockHistoryRepository stockRepo;
@@ -81,4 +85,28 @@ public class StockService {
     public List<StockHistory> getHistoryByProduct(Integer productId) {
         return stockRepo.findByProductId(productId);
     }
+    public StockReportResponse getStockReport(Integer productId) {
+
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Không tìm thấy sản phẩm"
+                        )
+                );
+
+        Integer totalImport = stockRepo.totalImport(productId);
+        Integer totalExport = stockRepo.totalExport(productId);
+
+        Integer currentStock = product.getQuantity() == null ? 0 : product.getQuantity();
+
+        return new StockReportResponse(
+                product.getId(),
+                product.getName(),
+                currentStock,
+                totalImport,
+                totalExport
+        );
+    }
+
 }
