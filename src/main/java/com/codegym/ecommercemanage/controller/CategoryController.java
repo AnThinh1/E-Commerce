@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
 
     @Autowired
-    private CategoryRepository categoryRepository; // Đảm bảo bạn đã có Repository này
+    private CategoryRepository categoryRepository;
 
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
