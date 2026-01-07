@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 public class Cart {
-    private Map<Long, CartItem> items = new HashMap<>();
+    private Map<Integer, CartItem> items = new HashMap<>();
 
     public void addItem(CartItem item) {
         if (items.containsKey(item.getProductId())) {

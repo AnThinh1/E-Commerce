@@ -1,7 +1,7 @@
 package com.codegym.ecommercemanage.model;
 
 public class CartItem {
-    private Long productId;
+    private Integer productId;
     private String productName;
     private Double price;
     private Integer quantity;
@@ -18,10 +18,10 @@ public class CartItem {
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
-    public Long getProductId() {
+    public Integer getProductId() {
         return productId;
     }
-    public void setProductId(Long productId) {
+    public void setProductId(Integer productId) {
         this.productId = productId;
     }
     public String getProductName() {
