@@ -20,48 +20,56 @@ public class OrderService {
     @Autowired
     private ProductRepository productRepository;
 
-    @Transactional // Đảm bảo nếu có lỗi trong quá trình lưu item thì rollback toàn bộ Order
+    @Transactional(rollbackFor = Exception.class) // Quan trọng: Lỗi bất kỳ đâu sẽ hoàn tác tất cả (Rollback)
     public Order placeOrder(User user, List<CartItem> cartItems) {
 
-        // 1. Khởi tạo Order mới
+        // 1. Khởi tạo Order
         Order order = new Order();
-        order.setUser(user); // Gán người dùng hiện tại
-        order.setStatus("PENDING"); // Trạng thái mặc định
+        order.setUser(user);
+        order.setStatus("PENDING");
         order.setCreatedAt(LocalDateTime.now());
 
         double totalPrice = 0;
         List<OrderItem> orderItemList = new ArrayList<>();
 
-        // 2. Duyệt qua từng sản phẩm trong giỏ hàng
+        // 2. Duyệt qua từng sản phẩm trong giỏ
         for (CartItem itemDTO : cartItems) {
-            // Tìm sản phẩm thực tế trong DB
+            // A. Lấy sản phẩm từ DB
             Product product = productRepository.findById(itemDTO.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm ID: " + itemDTO.getProductId()));
+                    .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại ID: " + itemDTO.getProductId()));
 
-            // (Optional) Kiểm tra tồn kho ở đây nếu cần
-            // if (product.getStock() < itemDTO.getQuantity()) { throw ... }
+            // B. 🔥 CHECK TỒN KHO (Logic mới)
+            if (product.getQuantity() < itemDTO.getQuantity()) {
+                throw new RuntimeException("Sản phẩm '" + product.getName() + "' không đủ hàng. Chỉ còn: " + product.getQuantity());
+            }
 
-            // Tạo OrderItem
+            // C. 🔥 TRỪ TỒN KHO (Logic mới)
+            int newStock = product.getQuantity() - itemDTO.getQuantity();
+            product.setQuantity(newStock);
+
+            // Nếu hết hàng thì có thể set trạng thái luôn (Tùy chọn)
+            if (newStock == 0) {
+                product.setStatus("OUT_OF_STOCK");
+            }
+
+            // Lưu lại thông tin sản phẩm mới vào DB
+            productRepository.save(product);
+
+            // D. Tạo OrderItem
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(itemDTO.getQuantity());
-
-            // QUAN TRỌNG: Lấy giá từ DB (product.getPrice), không lấy từ frontend
-            orderItem.setPrice(product.getPrice());
+            orderItem.setPrice(product.getPrice()); // Lấy giá từ DB
 
             orderItemList.add(orderItem);
-
-            // Cộng dồn tổng tiền
             totalPrice += (product.getPrice() * itemDTO.getQuantity());
         }
 
-        // 3. Gán danh sách item và tổng tiền vào Order
+        // 3. Hoàn tất Order
         order.setItems(orderItemList);
         order.setTotalPrice(totalPrice);
 
-        // 4. Lưu vào Database
-        // Vì CascadeType.ALL ở entity Order, nên nó sẽ tự lưu luôn các OrderItem
         return orderRepository.save(order);
     }
 }
