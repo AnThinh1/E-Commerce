@@ -1,5 +1,7 @@
 package com.codegym.ecommercemanage.service;
 
+import com.codegym.ecommercemanage.dto.response.RevenueByDayResponse;
+import com.codegym.ecommercemanage.dto.response.RevenueByMonthResponse;
 import com.codegym.ecommercemanage.model.*;
 import com.codegym.ecommercemanage.repository.OrderRepository;
 import com.codegym.ecommercemanage.repository.ProductRepository;
@@ -29,7 +31,7 @@ public class OrderService {
         order.setStatus("PENDING");
         order.setCreatedAt(LocalDateTime.now());
 
-        double totalPrice = 0;
+        long totalPrice = 0;
         List<OrderItem> orderItemList = new ArrayList<>();
 
         // 2. Duyệt qua từng sản phẩm trong giỏ
@@ -63,7 +65,7 @@ public class OrderService {
             orderItem.setPrice(product.getPrice()); // Lấy giá từ DB
 
             orderItemList.add(orderItem);
-            totalPrice += (product.getPrice() * itemDTO.getQuantity());
+            totalPrice += product.getPrice().longValue() * itemDTO.getQuantity();
         }
 
         // 3. Hoàn tất Order
@@ -71,5 +73,61 @@ public class OrderService {
         order.setTotalPrice(totalPrice);
 
         return orderRepository.save(order);
+
     }
+
+    public List<RevenueByDayResponse> getRevenueByDay() {
+        return orderRepository.revenueByDay().stream()
+                .map(obj -> new RevenueByDayResponse(
+                        obj[0].toString(),
+                        ((Number) obj[1]).longValue()
+                ))
+                .toList();
+    }
+
+    public List<RevenueByMonthResponse> getRevenueByMonth() {
+        return orderRepository.revenueByMonth().stream()
+                .map(obj -> new RevenueByMonthResponse(
+                        (Integer) obj[0],
+                        (Integer) obj[1],
+                        ((Number) obj[2]).longValue()
+                ))
+                .toList();
+    }
+    // ================= ADMIN =================
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    public Order getOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng ID: " + orderId));
+    }
+
+    @Transactional
+    public void updateOrderStatus(Long orderId, String newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        String currentStatus = order.getStatus();
+
+        //  Không cho cập nhật nếu đã kết thúc
+        if (currentStatus.equals("COMPLETED") || currentStatus.equals("CANCELLED")) {
+            throw new RuntimeException("Đơn hàng đã kết thúc, không thể cập nhật");
+        }
+
+        //  HOÀN KHO KHI CANCEL (CHỈ KHI CÒN PENDING)
+        if (newStatus.equals("CANCELLED") && currentStatus.equals("PENDING")) {
+            for (OrderItem item : order.getItems()) {
+                Product product = item.getProduct();
+                product.setQuantity(product.getQuantity() + item.getQuantity());
+                productRepository.save(product);
+            }
+        }
+
+        // Cập nhật trạng thái
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+    }
+
 }
