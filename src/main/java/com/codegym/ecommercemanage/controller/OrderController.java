@@ -47,4 +47,36 @@ public class OrderController {
 
         return ResponseEntity.ok(savedOrder);
     }
+    // ================= XEM DANH SÁCH ĐƠN =================
+    @GetMapping
+    public ResponseEntity<List<Order>> getMyOrders(
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        Long userId = userPrincipal.getId();
+        return ResponseEntity.ok(orderService.getOrdersByUser(userId));
+    }
+
+    // ================= XEM CHI TIẾT ĐƠN =================
+    @GetMapping("/{orderId}")
+    public ResponseEntity<Order> getMyOrderDetail(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        Long userId = userPrincipal.getId();
+        return ResponseEntity.ok(orderService.getOrderByUser(orderId, userId));
+    }
+    // ================= SỬA TRẠNG THÁI =================
+    @PutMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelMyOrder(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        if (userPrincipal == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        orderService.cancelOrderByUser(orderId, userPrincipal.getId());
+        return ResponseEntity.ok("Huỷ đơn hàng thành công");
+    }
 }
+

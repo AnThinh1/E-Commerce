@@ -130,4 +130,49 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    // ================= USER =================
+
+    // Xem tất cả đơn của user
+    public List<Order> getOrdersByUser(Long userId) {
+        return orderRepository.findByUserId(userId);
+    }
+
+    // Xem chi tiết 1 đơn của user
+    public Order getOrderByUser(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        // Chặn xem đơn người khác
+        if (!order.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Không có quyền xem đơn hàng này");
+        }
+
+        return order;
+    }
+    @Transactional
+    public void cancelOrderByUser(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        // Chỉ cho huỷ đơn của chính mình
+        if (!order.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Không có quyền huỷ đơn này");
+        }
+
+        // Chỉ cho huỷ khi còn PENDING
+        if (!order.getStatus().equals("PENDING")) {
+            throw new RuntimeException("Chỉ có thể huỷ đơn khi đang chờ xử lý");
+        }
+
+        // Hoàn kho
+        for (OrderItem item : order.getItems()) {
+            Product product = item.getProduct();
+            product.setQuantity(product.getQuantity() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        // Cập nhật trạng thái
+        order.setStatus("CANCELLED");
+        orderRepository.save(order);
+    }
 }
