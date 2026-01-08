@@ -36,16 +36,16 @@ public class OrderService {
 
         // 2. Duyệt qua từng sản phẩm trong giỏ
         for (CartItem itemDTO : cartItems) {
-            // A. Lấy sản phẩm từ DB
+            // Lấy sản phẩm từ DB
             Product product = productRepository.findById(itemDTO.getProductId())
                     .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại ID: " + itemDTO.getProductId()));
 
-            // B. 🔥 CHECK TỒN KHO (Logic mới)
+            // CHECK TỒN KHO (Logic mới)
             if (product.getQuantity() < itemDTO.getQuantity()) {
                 throw new RuntimeException("Sản phẩm '" + product.getName() + "' không đủ hàng. Chỉ còn: " + product.getQuantity());
             }
 
-            // C. 🔥 TRỪ TỒN KHO (Logic mới)
+            // TRỪ TỒN KHO (Logic mới)
             int newStock = product.getQuantity() - itemDTO.getQuantity();
             product.setQuantity(newStock);
 

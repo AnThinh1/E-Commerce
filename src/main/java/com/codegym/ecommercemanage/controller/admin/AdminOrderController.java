@@ -15,19 +15,19 @@ public class AdminOrderController {
 
     private final OrderService orderService;
 
-    // ================= 1. XEM TẤT CẢ ĐƠN HÀNG =================
+    //XEM TẤT CẢ ĐƠN HÀNG
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    // ================= 2. XEM CHI TIẾT ĐƠN HÀNG =================
+    // XEM CHI TIẾT ĐƠN HÀNG
     @GetMapping("/{orderId}")
     public ResponseEntity<Order> getOrderDetail(@PathVariable Long orderId) {
         return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 
-    // ================= 3. CẬP NHẬT TRẠNG THÁI =================
+    // CẬP NHẬT TRẠNG THÁI
     @PutMapping("/{orderId}/status")
     public ResponseEntity<?> updateOrderStatus(
             @PathVariable Long orderId,

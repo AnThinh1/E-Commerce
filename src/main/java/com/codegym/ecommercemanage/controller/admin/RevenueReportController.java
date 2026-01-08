@@ -12,13 +12,13 @@ public class RevenueReportController {
 
     private final OrderService orderService;
 
-    // ================= DOANH THU THEO NGÀY =================
+    //DOANH THU THEO NGÀY
     @GetMapping("/revenue/day")
     public ResponseEntity<?> revenueByDay() {
         return ResponseEntity.ok(orderService.getRevenueByDay());
     }
 
-    // ================= DOANH THU THEO THÁNG =================
+    //DOANH THU THEO THÁNG
     @GetMapping("/revenue/month")
     public ResponseEntity<?> revenueByMonth() {
         return ResponseEntity.ok(orderService.getRevenueByMonth());
