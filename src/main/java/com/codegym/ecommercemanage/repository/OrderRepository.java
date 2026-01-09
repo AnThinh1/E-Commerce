@@ -27,4 +27,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         ORDER BY YEAR(o.createdAt), MONTH(o.createdAt)
     """)
     List<Object[]> revenueByMonth();
+    List<Order> findByUserId(Long userId);
 }
