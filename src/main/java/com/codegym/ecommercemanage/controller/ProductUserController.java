@@ -1,6 +1,9 @@
 package com.codegym.ecommercemanage.controller;
 
+import com.codegym.ecommercemanage.dto.request.CommentRequestDTO;
+import com.codegym.ecommercemanage.dto.response.ProductDetailResponseDTO;
 import com.codegym.ecommercemanage.model.Product;
+import com.codegym.ecommercemanage.service.CommentService;
 import com.codegym.ecommercemanage.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,18 +19,33 @@ public class ProductUserController {
     @Autowired
     private ProductService productService;
 
-    // Chỉ cần đúng 1 API lấy danh sách JSON
+    @Autowired
+    private CommentService commentService; // Inject thêm CommentService
+
+    // 1. Lấy danh sách sản phẩm (Giữ nguyên)
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productService.findAll());
     }
 
-    // API lấy chi tiết (nếu cần)
+    // 2. SỬA: Lấy chi tiết sản phẩm (Trả về ProductDetailResponseDTO kèm comment)
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable int id) {
-        Product product = productService.findById(id);
-        return product != null ? ResponseEntity.ok(product) : ResponseEntity.notFound().build();
+    public ResponseEntity<ProductDetailResponseDTO> getProductById(@PathVariable int id) {
+        ProductDetailResponseDTO productDetail = productService.getProductDetailWithComments(id);
+        if (productDetail != null) {
+            return ResponseEntity.ok(productDetail);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    // KHÔNG CẦN HÀM serveFile NỮA VÌ WebConfig ĐÃ LO RỒI
+    // 3. THÊM: API Đăng bình luận
+    @PostMapping("/comments")
+    public ResponseEntity<?> addComment(@RequestBody CommentRequestDTO commentRequest) {
+        try {
+            commentService.addComment(commentRequest);
+            return ResponseEntity.ok("Bình luận thành công!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
