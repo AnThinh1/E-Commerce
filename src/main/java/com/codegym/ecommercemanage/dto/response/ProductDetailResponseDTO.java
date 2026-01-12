@@ -9,7 +9,7 @@ public class ProductDetailResponseDTO {
     // Thông tin Product
     private Integer id;
     private String name;
-    private Double price;
+    private Long price;
     private String description;
     private String image;
     private String status;

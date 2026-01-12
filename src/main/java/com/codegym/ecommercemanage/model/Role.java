@@ -5,15 +5,17 @@ import lombok.*;
 
 @Entity
 @Table(name = "role")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(of = "id") // 👈 tránh so sánh lung tung
 public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; // ADMIN / CUSTOMER
+    private String name;
 }

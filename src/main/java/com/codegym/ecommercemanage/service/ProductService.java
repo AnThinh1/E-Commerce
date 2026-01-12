@@ -4,11 +4,15 @@ import com.codegym.ecommercemanage.dto.response.CommentResponseDTO;
 import com.codegym.ecommercemanage.dto.response.ProductDetailResponseDTO;
 import com.codegym.ecommercemanage.model.Comment;
 import com.codegym.ecommercemanage.model.Product;
+import com.codegym.ecommercemanage.model.User;
 import com.codegym.ecommercemanage.repository.CategoryRepository;
 import com.codegym.ecommercemanage.repository.CommentRepository;
 import com.codegym.ecommercemanage.repository.ProductRepository;
+import com.codegym.ecommercemanage.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.codegym.ecommercemanage.dto.request.ProductRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +27,10 @@ public class ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
 
     public List<Product> findAll() {
         return productRepository.findAll();
@@ -81,4 +89,37 @@ public class ProductService {
         return response;
     }
 
+    @Transactional
+    public void updateProductByStaff(
+            Integer productId,
+            ProductRequest req,
+            Long staffId
+    ) {
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+
+        // CHECK QUYỀN THEO CATEGORY
+        if (!staff.getManagedCategories().contains(product.getCategory())) {
+            throw new RuntimeException("Bạn không có quyền chỉnh sửa ngành hàng này");
+        }
+
+        // UPDATE
+        if (req.getName() != null)
+            product.setName(req.getName());
+
+        if (req.getPrice() != null)
+            product.setPrice(req.getPrice()); // hoặc Long nếu đã đổi entity
+
+        if (req.getQuantity() != null)
+            product.setQuantity(req.getQuantity());
+
+        if (req.getStatus() != null)
+            product.setStatus(req.getStatus());
+
+        if (req.getDescription() != null)
+            product.setDescription(req.getDescription());
+    }
 }

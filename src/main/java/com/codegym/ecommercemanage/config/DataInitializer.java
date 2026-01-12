@@ -20,7 +20,8 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        Role adminRole = roleRepo.findByName("ROLE_ADMIN");
+        Role adminRole = roleRepo.findByName("ROLE_ADMIN")
+                .orElseThrow(() -> new RuntimeException("ROLE_ADMIN not found"));
         if (adminRole == null) {
             adminRole = roleRepo.save(new Role(null, "ROLE_ADMIN"));
         }

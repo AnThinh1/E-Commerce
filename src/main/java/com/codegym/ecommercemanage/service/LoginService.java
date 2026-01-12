@@ -59,7 +59,8 @@ public class LoginService {
         user.setEmail(request.getEmail());
 
         // Gán quyền mặc định
-        Role userRole = roleRepo.findByName("ROLE_USER");
+        Role userRole = roleRepo.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("ROLE_USER not found"));
         user.setRoles(Set.of(userRole));
 
         // 2. Lưu xuống database
