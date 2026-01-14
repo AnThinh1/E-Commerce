@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/api/admin/reports")
 @RequiredArgsConstructor
@@ -23,4 +25,24 @@ public class RevenueReportController {
     public ResponseEntity<?> revenueByMonth() {
         return ResponseEntity.ok(orderService.getRevenueByMonth());
     }
+
+    @GetMapping("/revenue/day/filter")
+    public ResponseEntity<?> revenueByDayBetween(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to
+    ) {
+        return ResponseEntity.ok(
+                orderService.getRevenueByDayBetween(from, to)
+        );
+    }
+    @GetMapping("/revenue/month/filter")
+    public ResponseEntity<?> revenueByMonthBetween(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to
+    ) {
+        return ResponseEntity.ok(
+                orderService.getRevenueByMonthBetween(from, to)
+        );
+    }
+
 }

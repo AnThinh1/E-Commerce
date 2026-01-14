@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -175,4 +176,38 @@ public class OrderService {
         order.setStatus("CANCELLED");
         orderRepository.save(order);
     }
+
+    public List<RevenueByDayResponse> getRevenueByDayBetween(
+            LocalDate from,
+            LocalDate to
+    ) {
+        LocalDateTime fromDate = from.atStartOfDay();
+        LocalDateTime toDate = to.atTime(23, 59, 59);
+
+        return orderRepository.revenueByDayBetween(fromDate, toDate)
+                .stream()
+                .map(obj -> new RevenueByDayResponse(
+                        obj[0].toString(),
+                        ((Number) obj[1]).longValue()
+                ))
+                .toList();
+    }
+
+    public List<RevenueByMonthResponse> getRevenueByMonthBetween(
+            LocalDate from,
+            LocalDate to
+    ) {
+        LocalDateTime fromDate = from.atStartOfDay();
+        LocalDateTime toDate = to.atTime(23, 59, 59);
+
+        return orderRepository.revenueByMonthBetween(fromDate, toDate)
+                .stream()
+                .map(obj -> new RevenueByMonthResponse(
+                        (Integer) obj[0],
+                        (Integer) obj[1],
+                        ((Number) obj[2]).longValue()
+                ))
+                .toList();
+    }
+
 }

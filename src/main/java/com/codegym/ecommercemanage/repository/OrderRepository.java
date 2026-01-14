@@ -4,6 +4,7 @@ import com.codegym.ecommercemanage.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -28,4 +29,31 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     """)
     List<Object[]> revenueByMonth();
     List<Order> findByUserId(Long userId);
+
+    @Query("""
+    SELECT DATE(o.createdAt), SUM(o.totalPrice)
+    FROM Order o
+    WHERE o.status = 'COMPLETED'
+      AND o.createdAt BETWEEN :from AND :to
+    GROUP BY DATE(o.createdAt)
+    ORDER BY DATE(o.createdAt)
+""")
+    List<Object[]> revenueByDayBetween(
+            LocalDateTime from,
+            LocalDateTime to
+    );
+
+    @Query("""
+    SELECT YEAR(o.createdAt), MONTH(o.createdAt), SUM(o.totalPrice)
+    FROM Order o
+    WHERE o.status = 'COMPLETED'
+      AND o.createdAt BETWEEN :from AND :to
+    GROUP BY YEAR(o.createdAt), MONTH(o.createdAt)
+    ORDER BY YEAR(o.createdAt), MONTH(o.createdAt)
+""")
+    List<Object[]> revenueByMonthBetween(
+            LocalDateTime from,
+            LocalDateTime to
+    );
+
 }
