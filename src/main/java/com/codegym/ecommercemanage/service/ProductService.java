@@ -1,5 +1,6 @@
 package com.codegym.ecommercemanage.service;
 
+import com.codegym.ecommercemanage.dto.request.ProductFilterRequest;
 import com.codegym.ecommercemanage.dto.response.CommentResponseDTO;
 import com.codegym.ecommercemanage.dto.response.ProductDetailResponseDTO;
 import com.codegym.ecommercemanage.model.Comment;
@@ -11,6 +12,7 @@ import com.codegym.ecommercemanage.repository.ProductRepository;
 import com.codegym.ecommercemanage.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.codegym.ecommercemanage.dto.request.ProductRequest;
 
@@ -121,5 +123,45 @@ public class ProductService {
 
         if (req.getDescription() != null)
             product.setDescription(req.getDescription());
+    }
+    public List<Product> filterProducts(
+            ProductFilterRequest req,
+            Long userId
+    ) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Sort sort = Sort.unsorted();
+        if ("price_asc".equals(req.getSort())) {
+            sort = Sort.by("price").ascending();
+        } else if ("price_desc".equals(req.getSort())) {
+            sort = Sort.by("price").descending();
+        }
+
+        boolean isStaff = user.getRoles().stream()
+                .anyMatch(r -> r.getName().equals("ROLE_STAFF"));
+
+        if (isStaff) {
+            List<Integer> categoryIds = user.getManagedCategories()
+                    .stream()
+                    .map(c -> c.getId())
+                    .toList();
+
+            return productRepository.filterProductsForStaff(
+                    categoryIds,
+                    req.getMinPrice(),
+                    req.getMaxPrice(),
+                    req.getCategoryId(),
+                    sort
+            );
+        }
+
+        // ADMIN + USER
+        return productRepository.filterProducts(
+                req.getMinPrice(),
+                req.getMaxPrice(),
+                req.getCategoryId(),
+                sort
+        );
     }
 }

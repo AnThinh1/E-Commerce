@@ -1,12 +1,15 @@
 package com.codegym.ecommercemanage.controller.admin;
 
 
+import com.codegym.ecommercemanage.dto.request.ProductFilterRequest;
 import com.codegym.ecommercemanage.model.Product;
+import com.codegym.ecommercemanage.model.UserPrincipal;
 import com.codegym.ecommercemanage.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -129,5 +132,17 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi Server: " + e.getMessage());
         }
+    }
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterProducts(
+            ProductFilterRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(
+                productService.filterProducts(
+                        request,
+                        principal.getId()
+                )
+        );
     }
 }

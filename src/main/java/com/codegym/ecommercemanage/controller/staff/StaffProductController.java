@@ -1,5 +1,6 @@
 package com.codegym.ecommercemanage.controller.staff;
 
+import com.codegym.ecommercemanage.dto.request.ProductFilterRequest;
 import com.codegym.ecommercemanage.dto.request.ProductRequest;
 import com.codegym.ecommercemanage.model.UserPrincipal;
 import com.codegym.ecommercemanage.service.ProductService;
@@ -27,5 +28,14 @@ public class StaffProductController {
                 principal.getId()
         );
         return ResponseEntity.ok("Cập nhật sản phẩm thành công");
+    }
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterProducts(
+            ProductFilterRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(
+                productService.filterProducts(request, principal.getId())
+        );
     }
 }

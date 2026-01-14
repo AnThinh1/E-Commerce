@@ -1,12 +1,15 @@
 package com.codegym.ecommercemanage.controller;
 
 import com.codegym.ecommercemanage.dto.request.CommentRequestDTO;
+import com.codegym.ecommercemanage.dto.request.ProductFilterRequest;
 import com.codegym.ecommercemanage.dto.response.ProductDetailResponseDTO;
 import com.codegym.ecommercemanage.model.Product;
+import com.codegym.ecommercemanage.model.UserPrincipal;
 import com.codegym.ecommercemanage.service.CommentService;
 import com.codegym.ecommercemanage.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,4 +51,14 @@ public class ProductUserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterProducts(
+            ProductFilterRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(
+                productService.filterProducts(request, principal.getId())
+        );
+    }
+
 }
