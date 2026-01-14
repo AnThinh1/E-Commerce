@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -106,6 +107,24 @@ public class StockService {
                 currentStock,
                 totalImport,
                 totalExport
+        );
+    }
+    public List<StockHistory> filterHistoryByDate(
+            LocalDate from,
+            LocalDate to,
+            String type
+    ) {
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(23, 59, 59);
+
+        if (type == null || type.isBlank()) {
+            return stockRepo.findByCreatedAtBetween(fromDateTime, toDateTime);
+        }
+
+        return stockRepo.findByCreatedAtBetweenAndType(
+                fromDateTime,
+                toDateTime,
+                type
         );
     }
 

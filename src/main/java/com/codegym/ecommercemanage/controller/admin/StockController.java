@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -58,6 +60,17 @@ public class StockController {
     ) {
         return ResponseEntity.ok(
                 stockService.getStockReport(productId)
+        );
+    }
+    // ================= HISTORY FILTER BY DATE =================
+    @GetMapping("/history/filter")
+    public ResponseEntity<List<StockHistory>> filterHistoryByDate(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to,
+            @RequestParam(required = false) String type
+    ) {
+        return ResponseEntity.ok(
+                stockService.filterHistoryByDate(from, to, type)
         );
     }
 
