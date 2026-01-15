@@ -5,6 +5,7 @@ import com.codegym.ecommercemanage.dto.response.RevenueByMonthResponse;
 import com.codegym.ecommercemanage.model.*;
 import com.codegym.ecommercemanage.repository.OrderRepository;
 import com.codegym.ecommercemanage.repository.ProductRepository;
+import com.codegym.ecommercemanage.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderService {
@@ -22,6 +25,9 @@ public class OrderService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional(rollbackFor = Exception.class) // Quan trọng: Lỗi bất kỳ đâu sẽ hoàn tác tất cả (Rollback)
     public Order placeOrder(User user, List<CartItem> cartItems) {
@@ -210,4 +216,39 @@ public class OrderService {
                 .toList();
     }
 
+    public List<Order> getOrdersByStaff(Long staffId) {
+        // 1. Lấy thông tin Staff
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên ID: " + staffId));
+
+        // 2. Lấy danh sách Category mà Staff này quản lý
+        Set<Category> managedCategories = staff.getManagedCategories();
+
+        // 3. Nếu Staff không quản lý category nào, trả về rỗng
+        if (managedCategories == null || managedCategories.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 4. Truy vấn các đơn hàng có sản phẩm thuộc các category này
+        return orderRepository.findOrdersByCategories(managedCategories);
+    }
+
+    public Order getOrderByIdForStaff(Long orderId, Long staffId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
+        Set<Category> managedCategories = staff.getManagedCategories();
+// Kiểm tra xem trong đơn hàng có sản phẩm nào thuộc category staff quản lý không
+
+        boolean isManaged = order.getItems().stream()
+
+                .anyMatch(item -> managedCategories.contains(item.getProduct().getCategory()));
+        if (!isManaged) {
+
+            throw new RuntimeException("Bạn không có quyền xem đơn hàng này (Khác Category quản lý)");
+
+        }
+        return order;
+    }
 }

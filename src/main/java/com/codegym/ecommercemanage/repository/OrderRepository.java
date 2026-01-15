@@ -1,11 +1,14 @@
 package com.codegym.ecommercemanage.repository;
 
+import com.codegym.ecommercemanage.model.Category;
 import com.codegym.ecommercemanage.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -56,4 +59,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             LocalDateTime to
     );
 
+    @Query("SELECT DISTINCT o FROM Order o " +
+            "JOIN o.items oi " +
+            "JOIN oi.product p " +
+            "WHERE p.category IN :categories " +
+            "ORDER BY o.createdAt DESC")
+    List<Order> findOrdersByCategories(@Param("categories") Set<Category> categories);
 }
