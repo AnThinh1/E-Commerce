@@ -19,6 +19,7 @@ public class RegisterRequest {
     private String phone;   // Có thể null
     private String address; // Có thể null
     private String email;
+    private String status;
     // Nên thêm Email nếu dự án cần gửi mail xác nhận
     // @Email
     // private String email;

@@ -33,7 +33,6 @@ public class UserProfileService {
         user.setPhone(r.getPhone());
         user.setAddress(r.getAddress());
         user.setEmail(r.getEmail());
-
         userRepo.save(user);
         return map(user);
     }

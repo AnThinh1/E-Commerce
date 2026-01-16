@@ -57,7 +57,9 @@ public class OrderService {
             product.setQuantity(newStock);
 
             // Nếu hết hàng thì có thể set trạng thái luôn (Tùy chọn)
-            if (newStock == 0) {
+            if (newStock > 0) {
+                product.setStatus("ACTIVE");
+            } else {
                 product.setStatus("OUT_OF_STOCK");
             }
 

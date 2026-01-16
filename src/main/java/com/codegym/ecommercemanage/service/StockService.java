@@ -33,9 +33,13 @@ public class StockService {
                         new RuntimeException("Không tìm thấy sản phẩm")
                 );
 
-        product.setQuantity(
-                product.getQuantity() + request.getQuantity()
-        );
+        product.setQuantity(product.getQuantity() + request.getQuantity());
+
+        if (product.getQuantity() > 0) {
+            product.setStatus("ACTIVE");
+        } else {
+            product.setStatus("OUT_OF_STOCK");
+        }
         productRepo.save(product);
 
         StockHistory history = StockHistory.builder()
@@ -65,6 +69,11 @@ public class StockService {
         product.setQuantity(
                 product.getQuantity() - request.getQuantity()
         );
+        if (product.getQuantity() > 0) {
+            product.setStatus("ACTIVE");
+        } else {
+            product.setStatus("OUT_OF_STOCK");
+        }
         productRepo.save(product);
 
         StockHistory history = StockHistory.builder()
