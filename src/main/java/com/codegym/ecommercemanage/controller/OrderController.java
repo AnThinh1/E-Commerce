@@ -1,5 +1,6 @@
 package com.codegym.ecommercemanage.controller;
 
+import com.codegym.ecommercemanage.dto.request.PlaceOrderRequest;
 import com.codegym.ecommercemanage.model.CartItem;
 import com.codegym.ecommercemanage.model.Order;
 import com.codegym.ecommercemanage.model.User;
@@ -26,24 +27,21 @@ public class OrderController {
 
     @PostMapping("/checkout")
     public ResponseEntity<?> checkout(
-            @RequestBody List<CartItem> cartItems,
-            @AuthenticationPrincipal UserPrincipal userPrincipal // <--- KEY POINT: Lấy thẳng object này
+            @RequestBody PlaceOrderRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
-        // 1. Kiểm tra đăng nhập
         if (userPrincipal == null) {
             return ResponseEntity.status(401).body("Bạn chưa đăng nhập");
         }
 
-        // 2. Lấy ID trực tiếp từ UserPrincipal (không cần query DB để tìm username)
-        Long userId = userPrincipal.getId();
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 3. Lấy Entity User để gán vào Order
-        // (Query theo ID nhanh hơn query theo Username)
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        // 4. Gọi Service
-        Order savedOrder = orderService.placeOrder(user, cartItems);
+        Order savedOrder = orderService.placeOrder(
+                user,
+                request.getCartItems(),
+                request.getVoucherCode()
+        );
 
         return ResponseEntity.ok(savedOrder);
     }
