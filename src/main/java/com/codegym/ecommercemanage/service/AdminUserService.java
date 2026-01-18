@@ -232,8 +232,8 @@ public class AdminUserService {
                     categoryRepo.findAllById(request.getCategoryIds())
             );
         }
-
-        return toResponse(staff);
+        User savedStaff = userRepo.save(staff);
+        return toResponse(savedStaff);
     }
 
 
