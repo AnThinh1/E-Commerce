@@ -36,7 +36,7 @@ public class StockService {
         product.setQuantity(product.getQuantity() + request.getQuantity());
 
         if (product.getQuantity() > 0) {
-            product.setStatus("ACTIVE");
+            product.setStatus("AVAILABLE");
         } else {
             product.setStatus("OUT_OF_STOCK");
         }
@@ -70,7 +70,7 @@ public class StockService {
                 product.getQuantity() - request.getQuantity()
         );
         if (product.getQuantity() > 0) {
-            product.setStatus("ACTIVE");
+            product.setStatus("AVAILABLE");
         } else {
             product.setStatus("OUT_OF_STOCK");
         }

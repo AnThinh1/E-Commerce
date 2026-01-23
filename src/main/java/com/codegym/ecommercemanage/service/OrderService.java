@@ -410,7 +410,7 @@ public class OrderService {
 
             int newStock = product.getQuantity() - dto.getQuantity();
             product.setQuantity(newStock);
-            product.setStatus(newStock > 0 ? "ACTIVE" : "OUT_OF_STOCK");
+            product.setStatus(newStock > 0 ? "AVAILABLE" : "OUT_OF_STOCK");
             productRepository.save(product);
 
             OrderItem item = new OrderItem();
